@@ -3,34 +3,34 @@
 // Contains functions for controlling the bot.
 //---------------------------------------------------------------------
 
-const Bot = {};
+const client = {};
 
-Bot.DBM = null;
+client.DBM = null;
 
 const DiscordJS = require('discord.js');
 
-Bot.$cmds = {};
-Bot.$evts = {};
+client.$cmds = {};
+client.$evts = {};
 
-Bot.bot = null;
+client.bot = null;
 
-Bot.init = function() {
+client.init = function() {
 	this.initBot();
 	this.reformatData();
 	this.initEvents();
 	this.login();
 };
 
-Bot.initBot = function() {
+client.initBot = function() {
 	this.bot = new DiscordJS.Client();
 };
 
-Bot.reformatData = function() {
+client.reformatData = function() {
 	this.reformatCommands();
 	this.reformatEvents();
 };
 
-Bot.reformatCommands = function() {
+client.reformatCommands = function() {
 	const data = this.DBM.Files.data.commands;
 	if(!data) return;
 	for(let i = 0; i < data.length; i++) {
@@ -45,7 +45,7 @@ Bot.reformatCommands = function() {
 	}
 };
 
-Bot.reformatEvents = function() {
+client.reformatEvents = function() {
 	const data = this.DBM.Files.data.events;
 	if(!data) return;
 	for(let i = 0; i < data.length; i++) {
@@ -58,23 +58,23 @@ Bot.reformatEvents = function() {
 	}
 };
 
-Bot.initEvents = function() {
+client.initEvents = function() {
 	this.bot.on('ready', this.onReady.bind(this));
 	this.bot.on('message', this.onMessage.bind(this));
 	this.DBM.Events.registerEvents(this.bot);
 };
 
-Bot.login = function() {
+client.login = function() {
 	this.bot.login(this.DBM.Files.data.settings.token);
 };
 
-Bot.onReady = function() {
+client.onReady = function() {
 	if(process.send) process.send('BotReady');
 	console.log('Bot is ready!');
 	this.preformInitialization();
 };
 
-Bot.preformInitialization = function() {
+client.preformInitialization = function() {
 	const bot = this.bot;
 	if(this.$evts["1"]) {
 		this.DBM.Events.onInitialization(bot);
@@ -84,7 +84,7 @@ Bot.preformInitialization = function() {
 	}
 };
 
-Bot.onMessage = function(msg) {
+client.onMessage = function(msg) {
 	if(!msg.author.bot) {
 		try {
 			if(!this.checkCommand(msg)) {
@@ -96,7 +96,7 @@ Bot.onMessage = function(msg) {
 	}
 };
 
-Bot.checkCommand = function(msg) {
+client.checkCommand = function(msg) {
 	let command = this.checkTag(msg.content);
 	if(command) {
 		if(this.DBM.Files.data.settings.case === 'false') {
@@ -111,7 +111,7 @@ Bot.checkCommand = function(msg) {
 	return false;
 };
 
-Bot.checkTag = function(content) {
+client.checkTag = function(content) {
 	const tag = this.DBM.Files.data.settings.tag;
 	const separator = this.DBM.Files.data.settings.separator || '\\s+';
 	content = content.split(new RegExp(separator))[0];
@@ -121,7 +121,7 @@ Bot.checkTag = function(content) {
 	return null;
 };
 
-Bot.onAnyMessage = function(msg) {
+client.onAnyMessage = function(msg) {
 	if(!msg.author.bot) {
 		if(this.$evts["2"]) {
 			this.DBM.Events.callEvents("2", 1, 0, 2, false, '', msg);
